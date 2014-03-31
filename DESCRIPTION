@@ -1,0 +1,34 @@
+Package: DE
+Type: Package
+Title: Performs an analysis of Data Elasticity
+Version: 1.0
+Date: 2013-01-03
+Author: Dustin Fife
+Maintainer: <fife.dustin@gmail.com>
+Description: This procedure attempts to find "confounding models," or models
+    that fit approximately as well as the model of interest. It does so by
+    randomly generating a large number of models, fitting them to the data,
+    then comparing their fits to the fit of the model of interest. Those models
+    that exceed the substantive model if fit are flagged for later analysis.
+License: GPL-2
+Depends:
+    OpenMx,
+    sem,
+    MBESS,
+    igraph,
+    MASS
+Imports:
+    sem,
+    MBESS,
+    igraph,
+    MASS
+Collate:
+    'DE-package.R'
+    'DE.R'
+    'DE.crit.path.R'
+    'DE.dist.R'
+    'DE.fit.R'
+    'DE.graphviz.R'
+    'RMSR.R'
+    'is.recur.R'
+    'random.correlation.R'
