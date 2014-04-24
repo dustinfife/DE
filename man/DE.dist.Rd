@@ -89,9 +89,8 @@ dataset}
   automatically correlated?}
 }
 \value{
-  \item{model.fits}{A Matrix where the first column is the
-  iteration number and the second column is the fit index
-  of that model.}
+  \item{DF}{The number of degrees of freedom for each
+  randomly generated model.}
 
   \item{better}{An integer indicating the number of models
   that fit better}
@@ -109,7 +108,7 @@ dataset}
 }
 \details{
   Model Conditioned Data Elasticity (DE) is a procedure
-  proposed by Fife, Rodgers, and Mendoza (2013). Given a
+  proposed by Fife, Rodgers, and Mendoza (2014). Given a
   correlation matrix, the procedure randomly generates path
   analysis models. Those models that fit better than the
   one proposed are flagged (either outputted as a path

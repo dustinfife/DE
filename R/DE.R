@@ -11,6 +11,10 @@
 #'variable exogenous), one would leave the "From" column as "". For example,
 #'the Age example would have c("", "Age", "0").
 #'
+#'Allowing any variable to correlate with an endogenous variable is equivalent to correlating with the residuals
+#'of that endogenous variable. When the user specifies a non-zero value (k) for corr.residuals, the algorithm randomly selects
+#'k*(number of paths) of the paths to be double-headed, thereby permitting correlated residuals. 
+#'
 #'@param variable.names A vector of variable names.
 #'@param paths The number of paths to be randomly generated. Can be a single value or a vector of two integers specifying a range. 
 #'@param restrictions What kind of restrictions are set. (See details).
@@ -20,6 +24,7 @@
 #'@param allow.bidir Should bidirectional arrows be allowed? (Note: this is not
 #'the same as a correlation).
 #'@param corr.exogenous Should exogenous variables be correlated?
+#'@param corr.residuals a value between 0 and 1 indicating the proportion of residuals the user allows to be correlated
 #'@return Returns a RAM matrix.
 #'@author Dustin Fife
 #'@seealso %% ~~objects to See Also as \code{\link{help}}, ~~~
@@ -37,7 +42,7 @@
 ####
 #variable.names=LETTERS[1:6]; paths=8; restrictions=NULL; prop.arrows=.3; allow.orphaned=F; allow.bidir=F; allow.cov.endogenous=F; corr.exogenous=T
 DE <-
-function(variable.names, paths, restrictions=NULL, prop.arrows=.2, allow.orphaned=FALSE, allow.bidir=FALSE, corr.exogenous=FALSE){
+function(variable.names, paths, restrictions=NULL, prop.arrows=.2, allow.orphaned=FALSE, allow.bidir=FALSE, corr.exogenous=FALSE, corr.residuals=0){
 	
 	variables = length(variable.names)
 	
@@ -121,8 +126,6 @@ function(variable.names, paths, restrictions=NULL, prop.arrows=.2, allow.orphane
 		}
 	}
 
-	
-	###### TODO: tell user how many possible models there are
 
 	###### first make sure there's no "orphaned" variables
 	if (!allow.orphaned){
@@ -203,42 +206,12 @@ function(variable.names, paths, restrictions=NULL, prop.arrows=.2, allow.orphane
 	random.model$From = as.character(random.model$From)
 	random.model$To = as.character(random.model$To)	
 
-	# ##### eliminate the possibility of an endogenous covariance	
-	# if (!allow.cov.endogenous){
-		# ####### determine if endogenous variable has bidirectional arrow
-		# #### find those that are endogenous for sure
-		# sb = subset(random.model, Arrows==1)
-		
-		# #### if any row has a single arrow
-		# if (nrow(sb)<nrow(random.model)){
-			# ##### loop through every row 
-			# for (k in 1:nrow(random.model)){
-				# #### select two-headed arrows
-				# sb2 = subset(random.model, Arrows==2)				
-				# #### select one-headed arrows
-				# sb = subset(random.model, Arrows==1)		
-						
-				# #### look at those who have single arrows going into them (endogenous)
-				# end = variable.names[which(variable.names %in% sb$To)]				
-				# s.end = end[which(!(end %in% sb$From))]
-				
-				# #### if the current row is double-headed
-				# if (random.model$Arrows[k]==2){
-					# ### see if either the from or the to row is endogenous
-					# if (sum(end %in% random.model$To[k] | end %in% random.model$From[k])>0){
-						
-						# # #### if both are strinctly endogenous, leave it as 2
-						# # if (sum(s.end %in% random.model$To[k])>0 & sum(s.end %in% random.model$From[k])>0){
-							# # random.model$Arrows[k] = 2
-						# # } else {
-						# #### if one is endogenous and the other exogenous, set to one
-							# random.model$Arrows[k] = 1
-						# #}
-					# }
-				# }	#### if arrows is two
-			# }	### loop through all rows
-		# }		### condition to correct endogeneity
-	# }
+	##### correlate residuals
+	if (corr.residuals>0){
+		change.arrows = sample(1:nrow(random.model), corr.residuals*nrow(random.model))		
+		random.model$Arrows[change.arrows] = 2
+	}
+	
 	
 	##### make exogenous variables correlated (if specified)
 	if (corr.exogenous){
@@ -284,5 +257,3 @@ function(variable.names, paths, restrictions=NULL, prop.arrows=.2, allow.orphane
 	###### return model
 	return(random.model)
 }
-
-s.end = LETTERS[1:3]

@@ -7,7 +7,7 @@
 #'threshold, the model is outputted as a pdf graphic and/or csv RAM matrix.
 #'
 #'Model Conditioned Data Elasticity (DE) is a procedure proposed by Fife,
-#'Rodgers, and Mendoza (2013). Given a correlation matrix, the procedure
+#'Rodgers, and Mendoza (2014). Given a correlation matrix, the procedure
 #'randomly generates path analysis models. Those models that fit better than
 #'the one proposed are flagged (either outputted as a path diagram via
 #'graphviz, or outputted as a RAM matrix in csv form) for later inspection.
@@ -57,7 +57,7 @@
 #'@param fix.var Should the variances of the exogenous variables be fixed?
 #'@param fitIndex specifies which fit index to use for comparison. One of the following, either "RMSEA" or "RMSR."
 #'@param corr.exo Should the exogenous variables be automatically correlated?
-#'@return \item{model.fits}{A Matrix where the first column is the iteration number and the second column is the fit index of that model.}
+#'@return \item{DF}{The number of degrees of freedom for each randomly generated model.}
 #'@return \item{better}{An integer indicating the number of models that fit better}
 #'@return \item{fitIndex}{A string (either "RMSEA" or "RMSR") indicating which fit index was used.}
 #'@author Dustin Fife
@@ -118,7 +118,6 @@ function(data=NULL, paths, location="", var.names=NULL, restrictions=NULL, arrow
 		actual.model[,4] = as.numeric(actual.model[,4])		
 		actual.model = actual.model[order(actual.model$From, actual.model$To),]				
 		user.model = try(DE.fit(actual.model, dataset=data, N, openmx, fix.variances = fix.var))
-		#print(summary(user.model))
 		if (openmx){
 			if (fitIndex=="RMSEA"){
 				actual.fit = summary(user.model)$RMSEA
@@ -264,7 +263,6 @@ function(data=NULL, paths, location="", var.names=NULL, restrictions=NULL, arrow
 		} else {
 
 			##### record the fit of the model
-			model.fits[i,1] = i
 			if (openmx){ 
 					#### compute fit index of interest
 				if (fitIndex=="RMSEA"){
@@ -274,8 +272,10 @@ function(data=NULL, paths, location="", var.names=NULL, restrictions=NULL, arrow
 				}
 				
 				model.fits[i,2] = newfit
+				model.fits[i,1] = summary(mxMod)$degreesOfFreedom
 			} else {
 				model.fits[i,2] =  sqrt(summary(mxMod)$chisq-summary(mxMod)$df)/sqrt(summary(mxMod)$df*(N-1))
+				model.fits[i,1] = summary(mxMod)$df				
 			}
 			#### if fit surpasses actual.fit, then output 
 			if (!is.na(model.fits[i,2])){
@@ -313,18 +313,20 @@ function(data=NULL, paths, location="", var.names=NULL, restrictions=NULL, arrow
 
 	cat(paste("\nNumber of models that fit better:", better, "\n", sep=""))
 	
+	#### report on those models with same df (if they supplied their model)
+	if (!is.null(actual.model)){
+		df.actual = ifelse(openmx, summary(user.model)$degreesOfFreedom,summary(user.model)$df)
+		better2 = length(which(model.fits[,1] == df.actual & model.fits[,2]<=actual.fit))
+		cat(paste("\nBetter fitting models with same DF:", better2, "\n", sep=""))
+	}
+	
 	#### output fits to a file
 	m = data.frame(model.fits)
-	names(m) = c("Model Number", "RMSEA")
+	names(m) = c("DF", "RMSEA")
 	write.csv(m, paste(location, "/FitDistribution.csv", sep=""), row.names=FALSE)
 	model.fits = data.frame(model.fits)
 	names(model.fits) = c("Iteration", "RMSEA")
 	
-	# ###### output histogram
-	# par(mar=c(2.5, 2.5, 3, 1), mgp=c(1.5, .5, 0), family="Times", font.main=1)	
-	# xl = range(model.fits[,2], na.rm=TRUE)
-	# hist(model.fits[,2], breaks=(nrow(model.fits)/10), main="Distribution of RMSEAs", xlab="RMSEA")
-	# abline(v=actual.fit, lwd=3)
 
 	final = list(fits=na.omit(model.fits), better = better, fit.index=fitIndex)
 	attr(final, "class") = c("DE.dist")

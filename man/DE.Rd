@@ -4,8 +4,8 @@
 \usage{
   DE(variable.names, paths, restrictions = NULL,
     prop.arrows = 0.2, allow.orphaned = FALSE,
-    allow.bidir = FALSE, allow.cov.endogenous = FALSE,
-    corr.exogenous = FALSE)
+    allow.bidir = FALSE, corr.exogenous = FALSE,
+    corr.residuals = 0)
 }
 \arguments{
   \item{variable.names}{A vector of variable names.}
@@ -17,10 +17,8 @@
   \item{restrictions}{What kind of restrictions are set.
   (See details).}
 
-  \item{prop.arrows}{What proportion of arrows should be
-  double-headed (correlational). (Note: when
-  allow.cov.endogenous=TRUE, this will apply to the
-  endogenous variables)}
+  \item{prop.arrows}{What proportion of exogenous variables
+  should be correlated. Defaults to .2.}
 
   \item{allow.orphaned}{Should orphaned variables be
   allowed when random models are generated?}
@@ -28,11 +26,12 @@
   \item{allow.bidir}{Should bidirectional arrows be
   allowed? (Note: this is not the same as a correlation).}
 
-  \item{allow.cov.endogenous}{Should endogenous variables
-  be allowed to be correlated?}
-
   \item{corr.exogenous}{Should exogenous variables be
   correlated?}
+
+  \item{corr.residuals}{a value between 0 and 1 indicating
+  the proportion of residuals the user allows to be
+  correlated}
 }
 \value{
   Returns a RAM matrix.
@@ -52,6 +51,13 @@
   a variable exogenous), one would leave the "From" column
   as "". For example, the Age example would have c("",
   "Age", "0").
+
+  Allowing any variable to correlate with an endogenous
+  variable is equivalent to correlating with the residuals
+  of that endogenous variable. When the user specifies a
+  non-zero value (k) for corr.residuals, the algorithm
+  randomly selects k*(number of paths) of the paths to be
+  double-headed, thereby permitting correlated residuals.
 }
 \examples{
 rest = matrix(c("A", "B", "1",
