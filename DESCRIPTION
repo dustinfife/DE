@@ -22,13 +22,3 @@ Imports:
     MBESS,
     igraph,
     MASS
-Collate:
-    'DE-package.R'
-    'DE.R'
-    'DE.crit.path.R'
-    'DE.dist.R'
-    'DE.fit.R'
-    'DE.graphviz.R'
-    'RMSR.R'
-    'is.recur.R'
-    'random.correlation.R'

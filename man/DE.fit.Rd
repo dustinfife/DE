@@ -2,8 +2,8 @@
 \alias{DE.fit}
 \title{Fit a RAM matrix to the data using path analysis.}
 \usage{
-  DE.fit(returned.model, dataset, N = 1000, openmx = FALSE,
-    fix.variances = FALSE, calc.se = FALSE)
+DE.fit(returned.model, dataset, N = 1000, openmx = FALSE,
+  fix.variances = FALSE, calc.se = FALSE)
 }
 \arguments{
   \item{returned.model}{The model of interest, in RAM
@@ -27,20 +27,19 @@
   Defaults to no to speed up the DE algorithm.}
 }
 \value{
-  Depending on which program is used to fit the data,
-  either an OpenMx or an sem output.
+Depending on which program is used to fit the data, either
+an OpenMx or an sem output.
 }
 \description{
-  Given a single RAM matrix, this function fits the model
-  and returns the output from either \code{OpenMx} or
-  \code{sem}.
+Given a single RAM matrix, this function fits the model and
+returns the output from either \code{OpenMx} or \code{sem}.
 }
 \details{
-  %% ~~ If necessary, more details than the description
-  above ~~
+%% ~~ If necessary, more details than the description above
+~~
 }
 \note{
-  %% ~~further notes~~
+%% ~~further notes~~
 }
 \examples{
 data(albanese)
@@ -61,13 +60,13 @@ model = DE.fit(returned.model=alb, dataset=albanese, N = 366, openmx=TRUE, fix.v
 summary(model)
 }
 \author{
-  Dustin Fife
+Dustin Fife
 }
 \references{
-  %% ~put references to the literature/web site here ~
+%% ~put references to the literature/web site here ~
 }
 \seealso{
-  \code{\link{DE}}, \code{\link{DE.dist}}
+\code{\link{DE}}, \code{\link{DE.dist}}
 }
 \keyword{~kwd1}
 \keyword{~kwd2}

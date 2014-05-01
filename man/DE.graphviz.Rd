@@ -2,11 +2,10 @@
 \alias{DE.graphviz}
 \title{Outputs a RAM model as a graphic}
 \usage{
-  DE.graphviz(model, file = "deleteme",
-    dotFilename = "graphic", rank.direction = "LR",
-    max.rank = NULL, min.rank = NULL, same.rank = NULL,
-    delete.dot = FALSE, silent = TRUE, label = "",
-    node.labels = TRUE)
+DE.graphviz(model, file = "deleteme", dotFilename = "graphic",
+  rank.direction = "LR", max.rank = NULL, min.rank = NULL,
+  same.rank = NULL, delete.dot = FALSE, silent = TRUE, label = "",
+  node.labels = TRUE)
 }
 \arguments{
   \item{model}{The RAM model to be imaged.}
@@ -41,7 +40,7 @@
   \item{node.labels}{Should the nodes be labeled?}
 }
 \description{
-  Outputs a pdf graphic of the model using graphviz
+Outputs a pdf graphic of the model using graphviz
 }
 \examples{
 # generate random model
@@ -51,6 +50,6 @@ DE.graphviz(rand.model, min.rank="A, B, C")
 # now go look at the root directory for the pdf graphic
 }
 \author{
-  Dustin Fife
+Dustin Fife
 }
 

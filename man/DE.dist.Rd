@@ -3,14 +3,13 @@
 \title{Generates \code{iterations} randomly generated models then fits them to the
 dataset}
 \usage{
-  DE.dist(data = NULL, paths, location = "",
-    var.names = NULL, restrictions = NULL, arrows = 0.2,
-    actual.model = NULL, actual.fit = NULL, iterations = 1,
-    N = 1000, graphviz = FALSE, output.ram = TRUE,
-    openmx = FALSE, check.identical.models = TRUE,
-    limit = 100, upper.limit = TRUE, recursive = TRUE,
-    fix.var = FALSE, fitIndex = c("RMSEA", "RMSR"),
-    corr.exo = FALSE, ...)
+DE.dist(data = NULL, paths, location = "", var.names = NULL,
+  restrictions = NULL, arrows = 0.2, actual.model = NULL,
+  actual.fit = NULL, iterations = 1, N = 1000, graphviz = FALSE,
+  output.ram = TRUE, openmx = FALSE, check.identical.models = TRUE,
+  limit = 100, upper.limit = TRUE, recursive = TRUE, fix.var = FALSE,
+  fitIndex = c("RMSEA", "RMSR"), corr.exo = FALSE, corr.residuals = 0,
+  ...)
 }
 \arguments{
   \item{data}{a correlation matrix containing the data to
@@ -87,45 +86,48 @@ dataset}
 
   \item{corr.exo}{Should the exogenous variables be
   automatically correlated?}
+
+  \item{corr.residuals}{The proportion of arrows that
+  should correlate residuals. Defaults to 0.}
 }
 \value{
-  \item{DF}{The number of degrees of freedom for each
-  randomly generated model.}
+\item{DF}{The number of degrees of freedom for each
+randomly generated model.}
 
-  \item{better}{An integer indicating the number of models
-  that fit better}
+\item{better}{An integer indicating the number of models
+that fit better}
 
-  \item{fitIndex}{A string (either "RMSEA" or "RMSR")
-  indicating which fit index was used.}
+\item{fitIndex}{A string (either "RMSEA" or "RMSR")
+indicating which fit index was used.}
 }
 \description{
-  This function randomly generates \code{iterations}
-  models, where the user specifies the value of
-  \code{iterations}. Each of these models are fit to the
-  dataset provided and the fit is assessed. For those
-  models that exceed a threshold, the model is outputted as
-  a pdf graphic and/or csv RAM matrix.
+This function randomly generates \code{iterations} models,
+where the user specifies the value of \code{iterations}.
+Each of these models are fit to the dataset provided and
+the fit is assessed. For those models that exceed a
+threshold, the model is outputted as a pdf graphic and/or
+csv RAM matrix.
 }
 \details{
-  Model Conditioned Data Elasticity (DE) is a procedure
-  proposed by Fife, Rodgers, and Mendoza (2014). Given a
-  correlation matrix, the procedure randomly generates path
-  analysis models. Those models that fit better than the
-  one proposed are flagged (either outputted as a path
-  diagram via graphviz, or outputted as a RAM matrix in csv
-  form) for later inspection.
+Model Conditioned Data Elasticity (DE) is a procedure
+proposed by Fife, Rodgers, and Mendoza (2014). Given a
+correlation matrix, the procedure randomly generates path
+analysis models. Those models that fit better than the one
+proposed are flagged (either outputted as a path diagram
+via graphviz, or outputted as a RAM matrix in csv form) for
+later inspection.
 
-  The DE procedure also allows user restrictions. For
-  example, suppose one variable is Age. Obviously, Age
-  should probably not be endogenous, so the user can
-  specify Age as an endogenous variable. That is done by
-  creating a matrix where the columns correspond to "From",
-  "To", and "Include." For example, to specify that A must
-  cause B, one would insert in the first row of the matrix
-  c("A", "B", "1"). To specify that nothing can cause a
-  variable (i.e., to make a variable exogenous), one would
-  leave the "From" column as "". For example, the Age
-  example would have c("", "Age", "0").
+The DE procedure also allows user restrictions. For
+example, suppose one variable is Age. Obviously, Age should
+probably not be endogenous, so the user can specify Age as
+an endogenous variable. That is done by creating a matrix
+where the columns correspond to "From", "To", and
+"Include." For example, to specify that A must cause B, one
+would insert in the first row of the matrix c("A", "B",
+"1"). To specify that nothing can cause a variable (i.e.,
+to make a variable exogenous), one would leave the "From"
+column as "". For example, the Age example would have c("",
+"Age", "0").
 }
 \examples{
 #### load the albanese dataset
@@ -150,16 +152,16 @@ FF = DE.dist(data=albanese, paths=c(6,7), N=366, restrictions=restrictions,
 		upper.limit=TRUE, iterations=50)
 }
 \author{
-  Dustin Fife
+Dustin Fife
 }
 \references{
-  Fife, D.A., Rodgers, J.L., & Mendoza, J. L. (2013). Model
-  conditioned data elasticity in path analysis: Assessing
-  the "confoundability" of the data. Manuscript submitted
-  for publication (under second revision).
+Fife, D.A., Rodgers, J.L., & Mendoza, J. L. (2013). Model
+conditioned data elasticity in path analysis: Assessing the
+"confoundability" of the data. Manuscript submitted for
+publication (under second revision).
 }
 \seealso{
-  See Also \code{\link{DE}}, \code{\link{DE.fit}},
-  \code{\link{print.DE.dist}}
+See Also \code{\link{DE}}, \code{\link{DE.fit}},
+\code{\link{print.DE.dist}}
 }
 

@@ -57,6 +57,7 @@
 #'@param fix.var Should the variances of the exogenous variables be fixed?
 #'@param fitIndex specifies which fit index to use for comparison. One of the following, either "RMSEA" or "RMSR."
 #'@param corr.exo Should the exogenous variables be automatically correlated?
+#'@param corr.residuals The proportion of arrows that should correlate residuals. Defaults to 0.
 #'@return \item{DF}{The number of degrees of freedom for each randomly generated model.}
 #'@return \item{better}{An integer indicating the number of models that fit better}
 #'@return \item{fitIndex}{A string (either "RMSEA" or "RMSR") indicating which fit index was used.}
@@ -92,7 +93,7 @@
 #' @import OpenMx sem MBESS igraph MASS
 
 DE.dist <-
-function(data=NULL, paths, location="", var.names=NULL, restrictions=NULL, arrows=.2, actual.model=NULL, actual.fit=NULL, iterations=1, N=1000, graphviz=FALSE, output.ram=TRUE, openmx=FALSE, check.identical.models=TRUE, limit=100, upper.limit=TRUE, recursive=TRUE, fix.var=FALSE, fitIndex=c("RMSEA", "RMSR"), corr.exo=FALSE, ...){
+function(data=NULL, paths, location="", var.names=NULL, restrictions=NULL, arrows=.2, actual.model=NULL, actual.fit=NULL, iterations=1, N=1000, graphviz=FALSE, output.ram=TRUE, openmx=FALSE, check.identical.models=TRUE, limit=100, upper.limit=TRUE, recursive=TRUE, fix.var=FALSE, fitIndex=c("RMSEA", "RMSR"), corr.exo=FALSE, corr.residuals=0, ...){
 	var.names = sort(var.names)
 	
 	require(MBESS, quietly=TRUE)
@@ -126,6 +127,8 @@ function(data=NULL, paths, location="", var.names=NULL, restrictions=NULL, arrow
 			}
 			ests = summary(user.model)$parameters
 			rws.t = which(ests$row != ests$col)
+			#### sort so OpenMX matches user model
+			actual.model = actual.model[order(actual.model$Arrows, actual.model$From, actual.model$To),]
 			actual.model[,4] = summary(user.model)$parameters$Estimate[rws.t]
 		} else {
 			actual.fit = summary(user.model)$RMSEA[1]
@@ -213,7 +216,7 @@ function(data=NULL, paths, location="", var.names=NULL, restrictions=NULL, arrow
 				if (recursive){
 					recur = FALSE
 					while (!recur){
-						r.model = DE(variable.names=var.names, paths=round(runif(1, paths[1], paths[2])), restrictions=restrictions, prop.arrows=arrows, corr.exogenous=corr.exo)
+						r.model = DE(variable.names=var.names, paths=round(runif(1, paths[1], paths[2])), restrictions=restrictions, prop.arrows=arrows, corr.exogenous=corr.exo, corr.residuals=corr.residuals)
 						recur = is.recur(r.model, var.names)
 					}
 				}
@@ -232,7 +235,7 @@ function(data=NULL, paths, location="", var.names=NULL, restrictions=NULL, arrow
 					if (recursive){
 						recur = FALSE
 						while (!recur){
-							r.model = DE(var.names, round(runif(1, paths[1], paths[2])), restrictions=restrictions, arrows, corr.exogenous=corr.exo)
+							r.model = DE(var.names, round(runif(1, paths[1], paths[2])), restrictions=restrictions, arrows, corr.exogenous=corr.exo,corr.residuals=corr.residuals)
 							recur = is.recur(r.model, var.names)
 						}
 					}

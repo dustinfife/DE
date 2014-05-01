@@ -33,14 +33,17 @@
 #'@export
 #'@examples
 #'
-#'rest = matrix(c("A", "B", "1",
-#'						"", "A", "0"), nrow=2, byrow=TRUE)
+#'rest = matrix(c("A", "B", "1", 1,
+#'						"", "A", "0", 1), nrow=2, byrow=TRUE)
 #'DE(variable.names=LETTERS[1:6], paths=c(6,7), restrictions = NULL, prop.arrows = 0.2, allow.orphaned=FALSE, allow.bidir=FALSE, allow.cov.endogenous=FALSE)
 #'
 
 
 ####
-#variable.names=LETTERS[1:6]; paths=8; restrictions=NULL; prop.arrows=.3; allow.orphaned=F; allow.bidir=F; allow.cov.endogenous=F; corr.exogenous=T
+#variable.names=LETTERS[1:6]; paths=8; restrictions=NULL; prop.arrows=.3; allow.orphaned=F; allow.bidir=F; allow.cov.endogenous=F; corr.exogenous=T; corr.residuals=.2
+#variable.names=row.names(D.set); paths=c(16); restrictions=rest; corr.residuals=0; corr.exogenous=T)
+
+#restrictions = matrix(c("A", "B", "1", 2,"", "A", "0", 2), nrow=2, byrow=TRUE)
 DE <-
 function(variable.names, paths, restrictions=NULL, prop.arrows=.2, allow.orphaned=FALSE, allow.bidir=FALSE, corr.exogenous=FALSE, corr.residuals=0){
 	
@@ -60,6 +63,10 @@ function(variable.names, paths, restrictions=NULL, prop.arrows=.2, allow.orphane
 	if (length(variable.names) != variables){
 		stop(paste("The object 'variable.names' must have exactly ", variables, " elements.", sep=""))
 	}
+	# if (2 %in% restrictions[,4] & corr.exogenous==FALSE){
+		# warnings("You have specified that two variables must be correlated, but have also disallowed exogenous variables
+		# to be correlated. This may result in the restriction not being met.")
+	# }
 	
 	#### randomly sample the number of paths, given constraints
 	if (length(paths)>1){
@@ -76,10 +83,12 @@ function(variable.names, paths, restrictions=NULL, prop.arrows=.2, allow.orphane
 
 	#### check constraints
 	if (!is.null(restrictions)){
-		if (ncol(restrictions) != 3){
-		stop("Your 'restrictions' matrix must have three columns: From, To, and Include.")
+		if (ncol(restrictions) != 4){
+		stop("Your 'restrictions' matrix must have four columns: From, To, Include, and Arrows.")
 	}}
 	
+	poss$arrows=1
+
 
 	#### remove/add user-specified constraints
 	if (!is.null(restrictions)){
@@ -97,16 +106,22 @@ function(variable.names, paths, restrictions=NULL, prop.arrows=.2, allow.orphane
 				column = which(restrictions[i,1:2] != "")
 				#### find rows to delete (to avoid mutual causation)
 				column2 = which(restrictions[i,1:2] == "")				
-				rws2 = which(poss[,column] == restrictions[i,column])
-				delRows = which(poss[,column2] == restrictions[i,column])
+				if (length(column)>0 & length(column2)>0){
+					rws2 = which(poss[,column] == restrictions[i,column])
+					delRows = which(poss[,column2] == restrictions[i,column])
+				} else {
+					rws2 = NA
+					delRows= NA
+				}
 
 				##### include them
 				if (restrictions[i,3] == 1){
 					poss[rws2,3] = 1
+					poss[rws2,4] = restrictions[i,4]
 					### remove bidirectional
-					if (length(delRows)>0) poss = poss[-delRows,]
+					if (length(delRows)>0 & !is.na(delRows)) poss = poss[-delRows,]
 				} else {  ### or remove them
-					poss = poss[-rws2,]
+					if (length(rws2)>0 & !is.na(rws2)) poss = poss[-rws2,]
 				}
 				##### take care of other restrictions
 			} else {
@@ -117,10 +132,11 @@ function(variable.names, paths, restrictions=NULL, prop.arrows=.2, allow.orphane
 						
 				if (restrictions[i,3] == 1){
 					poss[rws,3] = 1
+					poss[rws,4] = restrictions[i,4]					
 					### remove bidirectional
 					if (length(rwsDel)>0) poss = poss[-rwsDel,] 
 				} else {
-					poss = poss[-rws,]
+					if (length(rws)>0) poss = poss[-rws,] 
 				}
 			}
 		}
@@ -174,7 +190,7 @@ function(variable.names, paths, restrictions=NULL, prop.arrows=.2, allow.orphane
 			}
 		}
 	}
-	random.model = poss[which(poss$must==1),1:2]
+	random.model = poss[which(poss$must==1),c(1,2)]
 
 
 	##### determine number of arrows
@@ -182,10 +198,11 @@ function(variable.names, paths, restrictions=NULL, prop.arrows=.2, allow.orphane
 
 	#### fix user specified arrows
 	if (!is.null(restrictions)){	
-	for (i in 1:nrow(restrictions)){
-		rw = which(random.model[,1] == restrictions[i,1] & random.model[,2] == restrictions[i,2])
-		ar[rw] = as.numeric(restrictions[i,3])
-	}}
+		for (i in 1:nrow(restrictions)){
+			rw = which(as.character(random.model[,1]) == as.character(restrictions[i,1]) & as.character(random.model[,2]) == as.character(restrictions[i,2]))
+			ar[rw] = as.numeric(restrictions[i,4])
+		}
+	}
 	
 
 	
@@ -208,10 +225,11 @@ function(variable.names, paths, restrictions=NULL, prop.arrows=.2, allow.orphane
 
 	##### correlate residuals
 	if (corr.residuals>0){
-		change.arrows = sample(1:nrow(random.model), corr.residuals*nrow(random.model))		
-		random.model$Arrows[change.arrows] = 2
+		change.arrows = sample(1:nrow(random.model), size=corr.residuals*nrow(random.model))	
+		#### figure out which of those arrows is not already a 2
+		testit = which(random.model$Arrows[change.arrows] != 2)
+		random.model$Arrows[change.arrows][testit] = 2
 	}
-	
 	
 	##### make exogenous variables correlated (if specified)
 	if (corr.exogenous){
@@ -225,7 +243,7 @@ function(variable.names, paths, restrictions=NULL, prop.arrows=.2, allow.orphane
 		if (length(s.end)>1){
 			
 			### come up with all possible ways of connecting endogenous variables
-			allofem = data.frame(t(combn(s.end, 2))); names(allofem) = c("From", "To")
+			allofem = data.frame(t(combn(s.end, 2)), stringsAsFactors=F); names(allofem) = c("From", "To")
 			
 			### randomly select which rows have arrows
 			randnum = runif(nrow(allofem))

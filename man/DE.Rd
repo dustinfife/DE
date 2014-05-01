@@ -2,10 +2,9 @@
 \alias{DE}
 \title{Generates a random model using RAM specification.}
 \usage{
-  DE(variable.names, paths, restrictions = NULL,
-    prop.arrows = 0.2, allow.orphaned = FALSE,
-    allow.bidir = FALSE, corr.exogenous = FALSE,
-    corr.residuals = 0)
+DE(variable.names, paths, restrictions = NULL, prop.arrows = 0.2,
+  allow.orphaned = FALSE, allow.bidir = FALSE, corr.exogenous = FALSE,
+  corr.residuals = 0)
 }
 \arguments{
   \item{variable.names}{A vector of variable names.}
@@ -34,45 +33,44 @@
   correlated}
 }
 \value{
-  Returns a RAM matrix.
+Returns a RAM matrix.
 }
 \description{
-  This function generates a single random path model.
+This function generates a single random path model.
 }
 \details{
-  Making restrictions is simple. For example, suppose one
-  variable is Age. Obviously, Age should probably not be
-  endogenous, so the user can specify Age as an endogenous
-  variable. That is done by creating a matrix where the
-  columns correspond to "From", "To", and "Include." For
-  example, to specify that A must cause B, one would insert
-  in the first row of the matrix c("A", "B", "1"). To
-  specify that nothing can cause a variable (i.e., to make
-  a variable exogenous), one would leave the "From" column
-  as "". For example, the Age example would have c("",
-  "Age", "0").
+Making restrictions is simple. For example, suppose one
+variable is Age. Obviously, Age should probably not be
+endogenous, so the user can specify Age as an endogenous
+variable. That is done by creating a matrix where the
+columns correspond to "From", "To", and "Include." For
+example, to specify that A must cause B, one would insert
+in the first row of the matrix c("A", "B", "1"). To specify
+that nothing can cause a variable (i.e., to make a variable
+exogenous), one would leave the "From" column as "". For
+example, the Age example would have c("", "Age", "0").
 
-  Allowing any variable to correlate with an endogenous
-  variable is equivalent to correlating with the residuals
-  of that endogenous variable. When the user specifies a
-  non-zero value (k) for corr.residuals, the algorithm
-  randomly selects k*(number of paths) of the paths to be
-  double-headed, thereby permitting correlated residuals.
+Allowing any variable to correlate with an endogenous
+variable is equivalent to correlating with the residuals of
+that endogenous variable. When the user specifies a
+non-zero value (k) for corr.residuals, the algorithm
+randomly selects k*(number of paths) of the paths to be
+double-headed, thereby permitting correlated residuals.
 }
 \examples{
-rest = matrix(c("A", "B", "1",
-						"", "A", "0"), nrow=2, byrow=TRUE)
+rest = matrix(c("A", "B", "1", 1,
+						"", "A", "0", 1), nrow=2, byrow=TRUE)
 DE(variable.names=LETTERS[1:6], paths=c(6,7), restrictions = NULL, prop.arrows = 0.2, allow.orphaned=FALSE, allow.bidir=FALSE, allow.cov.endogenous=FALSE)
 }
 \author{
-  Dustin Fife
+Dustin Fife
 }
 \references{
-  Fife, D.A., Rodgers, J.L., & Mendoza, J. L. (2013). Model
-  conditioned data elasticity in path analysis: Assessing
-  the "confoundability"
+Fife, D.A., Rodgers, J.L., & Mendoza, J. L. (2013). Model
+conditioned data elasticity in path analysis: Assessing the
+"confoundability"
 }
 \seealso{
-  %% ~~objects to See Also as \code{\link{help}}, ~~~
+%% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 
