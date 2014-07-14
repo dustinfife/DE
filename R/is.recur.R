@@ -1,3 +1,10 @@
+##' Checks whether a model is recursive (i.e., limits to a DAG)
+##'	
+##' @param r.model The model generated with the function \code{\link{DE}}
+##' @param var.names The names of the variables
+##' @seealso \code{\link{is.dag}}
+##' @return Logical (either TRUE or FALSE)
+##' @export
 is.recur = function(r.model, var.names){
 	two.arrows = which(r.model$Arrows==2)
 	if (length(two.arrows)>0){

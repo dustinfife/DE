@@ -94,7 +94,8 @@ function(returned.model, dataset, N=1000, openmx=FALSE, fix.variances=FALSE, cal
 			cmd2 = paste("rm -rf ", getwd(), "/deleteme.txt", sep="")
 			system(cmd2)
 			se.m = suppressWarnings(sem(mod, S=as.matrix(dataset), N=1000, maxiter=10000, warn=FALSE))
-			return(se.m)
+			attr(se.m, "class") = "DE.fit"
+			se.m
 	} else {
 		require(OpenMx, quietly=TRUE)
 
@@ -133,6 +134,7 @@ function(returned.model, dataset, N=1000, openmx=FALSE, fix.variances=FALSE, cal
 		}
 			#### run the model
 		mxFit = mxRun(model = mxMod, silent=TRUE, suppressWarnings=TRUE)
-		return(mxFit)
+		attr(mxFit, "class") = "DE.fit"
+		mxFit
 	}
 }
