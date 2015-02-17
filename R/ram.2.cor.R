@@ -9,7 +9,6 @@
 ##' specifies the path coefficients in the form of a RAM matrix and the algorithm estimates what the residual
 ##' correlations ought to be.
 ##' @param RAM a Reticular Action model with columns "From", "To", "Arrows", and "Values"
-##' @one.diag TRUE Should the diagonals be forced to one?
 ##' @references An openmx forum about this: http://openmx.psyc.virginia.edu/thread/3866
 ##' @return A correlation matrix generated from a RAM model
 ##' @author Dustin Fife
@@ -47,9 +46,9 @@ ram.2.cor = function(RAM){
 		end = names(mA)[which(rowSums(abs(mA))>0)]
 		
 		#### for endogenous variables, set variances to zero (temporarily)
-		mS = data.frame(diag(x=1, length(all.vars)), row.names=all.vars)
+		mS = data.frame(diag(x=diag, length(all.vars)), row.names=all.vars)
 
-		diag(mS[which(rowSums(abs(mA))>0), which(rowSums(abs(mA))>0)]) = 0
+		diag(mS[which(rowSums(abs(mA))==0), which(rowSums(abs(mA))==0)]) = 1
 		names(mS) = row.names(mS)
 		for (i in 1:nrow(RAM)){
 			if (RAM$Arrows[i] == 2){
