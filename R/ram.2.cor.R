@@ -51,7 +51,10 @@ ram.2.cor = function(RAM){
 		if (length(ex)==1){
 			mS[which(rowSums(abs(mA))==0), which(rowSums(abs(mA))==0)]=1
 		} else {
-			diag(mS[which(rowSums(abs(mA))==0), which(rowSums(abs(mA))==0)]) = 1
+			ex.num = which(rowSums(abs(mA))==0)
+			for (m in ex.num){
+				mS[m,m] = 1 
+			}
 		}
 		names(mS) = row.names(mS)
 		for (i in 1:nrow(RAM)){
